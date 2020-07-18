@@ -5,6 +5,7 @@ import ImageHoster.model.Tag;
 import ImageHoster.model.User;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -113,7 +114,7 @@ public class ImageController {
     //The method also receives tags parameter which is a string of all the tags separated by a comma using the annotation @RequestParam
     //The method converts the string to a list of all the tags using findOrCreateTags() method and sets the tags attribute of an image as a list of all the tags
     @RequestMapping(value = "/editImage", method = RequestMethod.PUT)
-    public String editImageSubmit(@RequestParam("file") MultipartFile file, @RequestParam("imageId") Integer imageId, @RequestParam("tags") String tags, Image updatedImage, HttpSession session) throws IOException {
+    public String editImageSubmit(@RequestParam("file") MultipartFile file, @RequestParam("imageId") Integer imageId, @RequestParam("tags") String tags, Image updatedImage, Model model, HttpSession session) throws IOException {
 
         Image image = imageService.getImage(imageId);
         String updatedImageData = convertUploadedFileToBase64(file);
@@ -125,14 +126,28 @@ public class ImageController {
             updatedImage.setImageFile(updatedImageData);
         }
 
-        updatedImage.setId(imageId);
         User user = (User) session.getAttribute("loggeduser");
-        updatedImage.setUser(user);
-        updatedImage.setTags(imageTags);
-        updatedImage.setDate(new Date());
 
-        imageService.updateImage(updatedImage);
-        return "redirect:/images/" + updatedImage.getId() + "/" + updatedImage.getTitle();
+        //Added Validation for user id for owner to edit the image
+
+        if(image.getUser().getId() != user.getId()){
+            String error = "Only the owner of the image can edit the image";
+
+            model.addAttribute("image", image);
+            model.addAttribute("tags", image.getTags());
+            model.addAttribute("editError", error);
+            return "images/image";
+        }else
+        {
+            updatedImage.setId(imageId);
+            updatedImage.setUser(user);
+            updatedImage.setTags(imageTags);
+            updatedImage.setDate(new Date());
+
+            imageService.updateImage(updatedImage);
+            return "redirect:/images/" + updatedImage.getId() + "/" + updatedImage.getTitle();
+
+        }
     }
 
 
@@ -145,12 +160,13 @@ public class ImageController {
 
         User user = (User) session.getAttribute("loggeduser");
 
+        //Added Validation for user id for owner to delete the image
         if(image.getUser().getId() != user.getId()){
-            String error = "Only the owner of the image can edit the image";
+            String error = "Only the owner of the image can delete the image";
 
             model.addAttribute("image", image);
             model.addAttribute("tags", image.getTags());
-            model.addAttribute("editError", error);
+            model.addAttribute("deleteError", error);
             return "images/image";
         }else
         {
