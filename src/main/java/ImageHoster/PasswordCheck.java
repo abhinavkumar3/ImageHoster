@@ -15,7 +15,7 @@ public class PasswordCheck {
     }
 
     public boolean validate(final String password) {
-        matcher = pattern.matcher(password);
+        matcher = pattern.matcher(password.trim());
         return matcher.matches();
     }
 }
