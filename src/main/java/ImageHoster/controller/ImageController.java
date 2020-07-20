@@ -5,7 +5,6 @@ import ImageHoster.model.Tag;
 import ImageHoster.model.User;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +46,8 @@ public class ImageController {
     //Here a list of tags is added in the Model type object
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{imageId}/{title}")
-    public String showImage(@PathVariable(name = "imageId") Integer imageId, @PathVariable(name ="title") String title, Model model) {
+    public String showImage(@PathVariable(name = "imageId") Integer imageId,
+                            @PathVariable(name ="title") String title, Model model) {
         Image image = imageService.getImage(imageId);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
@@ -96,7 +96,6 @@ public class ImageController {
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
     public String editImage(@RequestParam("imageId") Integer imageId, Model model,HttpSession session) {
-
         //Added Validation for user id for owner to edit the image
         User user = (User) session.getAttribute("loggeduser");
         Image image = imageService.getImage(imageId);
@@ -156,7 +155,9 @@ public class ImageController {
     //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
-    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, Model model, HttpSession session) {
+    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId,
+                                    Model model,
+                                    HttpSession session) {
         Image image = imageService.getImage(imageId);
 
         User user = (User) session.getAttribute("loggeduser");

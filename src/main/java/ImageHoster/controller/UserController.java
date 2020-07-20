@@ -1,6 +1,5 @@
 package ImageHoster.controller;
 
-import ImageHoster.PasswordCheck;
 import ImageHoster.model.Image;
 import ImageHoster.model.User;
 import ImageHoster.model.UserProfile;
@@ -13,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpSession;
-import java.lang.reflect.Method;
-import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -46,11 +45,7 @@ public class UserController {
     public String registerUser(User user, Model model) {
 
         //Added Validation for checking the password for user to contain atleast 1 alphabet, 1 number & 1 special characterp
-        String password = user.getPassword();
-        PasswordCheck passwordCheck = new PasswordCheck();
-        boolean isValid = passwordCheck.validate(password);
-
-        if(isValid){
+        if(checkPassword(user.getPassword())){
             userService.registerUser(user);
             return "redirect:/users/login";
         } else {
@@ -60,7 +55,7 @@ public class UserController {
             user.setProfile(profile);
             model.addAttribute("User", user);
             model.addAttribute("passwordTypeError", error);
-            return "users/registration";
+            return "users/login";
         }
 
     }
@@ -98,5 +93,14 @@ public class UserController {
         List<Image> images = imageService.getAllImages();
         model.addAttribute("images", images);
         return "index";
+    }
+
+    //Checking the valid Password at the time of registration
+    public boolean checkPassword(String password) {
+        String PASSWORD_PATTERN = "((?=.*[a-z])(?=.*\\d)(?=.*[A-Z])(?=.*[@#$%!]).{8,40})";
+        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+        Matcher matcher = pattern.matcher(password.trim());
+
+        return matcher.matches();
     }
 }
