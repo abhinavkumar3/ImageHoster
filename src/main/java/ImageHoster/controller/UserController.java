@@ -55,7 +55,7 @@ public class UserController {
             user.setProfile(profile);
             model.addAttribute("User", user);
             model.addAttribute("passwordTypeError", error);
-            return "users/login";
+            return "users/registration";
         }
 
     }
